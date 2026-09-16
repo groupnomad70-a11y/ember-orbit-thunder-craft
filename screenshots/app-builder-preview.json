@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Guardian Parliament",
+      "hasCanvas": false,
+      "bodyTextLen": 2507,
+      "bodyTextHash": "a1eaf63081dff466f3c605fb7296757ab55c8054f010de5f1f486ebd83584a10",
+      "bodyTextPrefix": "Guardian Parliament 4P CLOSED LOOP The Loop Units Houses Daily W",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Guardian Parliament",
+      "hasCanvas": false,
+      "bodyTextLen": 2418,
+      "bodyTextHash": "132168898fdcf384cbc4c8b16bc063d39f7469718931bfe0f7c5071ee741eea7",
+      "bodyTextPrefix": "Guardian Parliament HTML CLOSED-LOOP DEVELOPMENTAL OS The unit o",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

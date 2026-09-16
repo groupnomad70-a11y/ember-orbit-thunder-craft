@@ -1,0 +1,2288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4-Product Restaurant OS</title>
+<style>
+/* ── TOKENS ── */
+:root {
+  --ink:        #1a1a18;
+  --ink-2:      #2e2e2a;
+  --ink-3:      #4a4a44;
+  --stone:      #7a7a72;
+  --dust:       #b8b5a8;
+  --paper:      #f5f3ee;
+  --paper-2:    #edeae2;
+  --paper-3:    #e4e0d6;
+  --cream:      #faf8f4;
+  --accent:     #b85c1a;   /* fired-clay — fried chicken, heat, kitchens */
+  --accent-2:   #7a9e3a;   /* field-green — coleslaw, raw material, yield */
+  --accent-3:   #1a5c8a;   /* cold-blue — Diet Coke, cold side */
+  --accent-4:   #c9943a;   /* grain-gold — rice */
+  --danger:     #c0392b;
+  --warn:       #d4880a;
+  --ok:         #3a8a4a;
+  --radius:     4px;
+  --radius-lg:  8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+/* ── NAV ── */
+.site-nav {
+  background: var(--ink);
+  padding: 0 24px;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-bottom: 3px solid var(--accent);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.nav-brand {
+  color: var(--paper);
+  font-size: 13px;
+  font-family: Georgia, serif;
+  letter-spacing: .3px;
+  padding: 14px 20px 14px 0;
+  border-right: 1px solid var(--ink-3);
+  margin-right: 12px;
+  white-space: nowrap;
+}
+
+.nav-brand strong { color: var(--accent); font-weight: bold; }
+
+.nav-tabs { display: flex; gap: 0; flex: 1; overflow-x: auto; }
+
+.ntab {
+  background: transparent;
+  border: none;
+  color: var(--dust);
+  padding: 14px 16px;
+  cursor: pointer;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  white-space: nowrap;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -3px;
+  transition: color .18s, border-color .18s;
+}
+
+.ntab:hover { color: var(--paper); }
+.ntab.active { color: var(--paper); border-bottom-color: var(--accent); }
+
+.nav-dl {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-family: Georgia, serif;
+  font-size: 11px;
+  cursor: pointer;
+  margin: 8px 0 8px 12px;
+  border-radius: var(--radius);
+  white-space: nowrap;
+}
+
+/* ── PAGES ── */
+.page { display: none; }
+.page.active { display: block; }
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* ── TYPE ── */
+.pg-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.pg-title {
+  font-size: 26px;
+  font-weight: bold;
+  color: var(--ink);
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+
+.pg-desc {
+  font-size: 13px;
+  color: var(--stone);
+  max-width: 620px;
+  margin-bottom: 28px;
+  line-height: 1.75;
+}
+
+.section-head {
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--ink);
+  margin: 28px 0 14px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--paper-3);
+}
+
+.sub-head {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--accent);
+  letter-spacing: .5px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+/* ── CARDS ── */
+.card {
+  background: var(--cream);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.card-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ── PRODUCT IDENTITY STRIP ── */
+.product-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--paper-3);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.pstrip-item {
+  background: var(--cream);
+  padding: 18px 16px;
+  text-align: center;
+}
+
+.pstrip-icon { font-size: 28px; margin-bottom: 6px; }
+.pstrip-name { font-size: 12px; font-weight: bold; color: var(--ink); margin-bottom: 2px; }
+.pstrip-price { font-size: 20px; font-weight: bold; }
+.pstrip-cost { font-size: 11px; color: var(--stone); margin-top: 2px; }
+.pstrip-margin {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--paper-2);
+  color: var(--ok);
+}
+
+/* ── OVERHEAD BASELINE ── */
+.overhead-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 100px 100px;
+  gap: 0;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--paper-3);
+  align-items: center;
+  font-size: 13px;
+}
+
+.overhead-row:last-child { border-bottom: none; }
+.overhead-row.head {
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.overhead-row.total {
+  background: var(--paper-2);
+  font-weight: bold;
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+.oh-label { color: var(--ink); }
+.oh-month { text-align: right; color: var(--stone); }
+.oh-day   { text-align: right; font-weight: bold; color: var(--ink); }
+.oh-note  { text-align: right; font-size: 10px; color: var(--stone); }
+
+/* ── UNIT OF MEASURE TABLE ── */
+.uom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.uom-table th {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 9px 12px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.uom-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--paper-3);
+  vertical-align: top;
+}
+
+.uom-table tr:nth-child(even) td { background: var(--paper-2); }
+.uom-table tr:hover td { background: var(--paper-3); }
+
+.uom-table .lever {
+  background: rgba(184,92,26,.08);
+  font-weight: bold;
+  color: var(--accent);
+}
+
+/* ── FILLABLE FORM ELEMENTS ── */
+.form-section {
+  background: var(--cream);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.form-section-head {
+  background: var(--ink-2);
+  color: var(--paper);
+  padding: 11px 18px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-section-head .role-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: bold;
+}
+
+.form-body { padding: 18px; }
+
+.field-row {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: end;
+}
+
+.fr-2 { grid-template-columns: repeat(2, 1fr); }
+.fr-3 { grid-template-columns: repeat(3, 1fr); }
+.fr-4 { grid-template-columns: repeat(4, 1fr); }
+.fr-5 { grid-template-columns: repeat(5, 1fr); }
+
+.field { display: flex; flex-direction: column; gap: 4px; }
+
+.field label {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.field input, .field select, .field textarea {
+  background: white;
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  color: var(--ink);
+  width: 100%;
+  transition: border-color .15s;
+}
+
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.field input[type="number"] { text-align: right; }
+.field input[readonly] { background: var(--paper-2); color: var(--stone); }
+.field textarea { resize: vertical; min-height: 64px; }
+
+.field .unit {
+  font-size: 9px;
+  color: var(--stone);
+  margin-top: 2px;
+}
+
+/* ── PRODUCT ROW WITHIN FORM ── */
+.product-form-row {
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.pfr-head {
+  background: var(--paper-2);
+  padding: 7px 14px;
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pfr-body { padding: 12px 14px; }
+
+/* ── PROFIT SIGNAL ── */
+.profit-signal {
+  border: 2px solid var(--paper-3);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+  background: var(--cream);
+}
+
+.ps-label { font-size: 11px; color: var(--stone); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.ps-value { font-size: 42px; font-weight: bold; color: var(--ink); line-height: 1; margin-bottom: 4px; }
+.ps-signal { font-size: 13px; }
+.ps-signal.green { color: var(--ok); }
+.ps-signal.red   { color: var(--danger); }
+.ps-signal.warn  { color: var(--warn); }
+
+/* ── APPROVAL DOCS ── */
+.approval-doc {
+  background: var(--cream);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.doc-header {
+  border-bottom: 3px solid var(--accent);
+  padding: 20px 24px 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: start;
+}
+
+.doc-title { font-size: 18px; font-weight: bold; color: var(--ink); }
+.doc-ref { font-size: 11px; color: var(--stone); margin-top: 3px; }
+.doc-seal {
+  width: 56px; height: 56px;
+  border: 2px solid var(--paper-3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  color: var(--accent);
+  background: var(--paper-2);
+}
+
+.doc-body { padding: 20px 24px; }
+
+.sig-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.sig-box {
+  border-top: 3px solid var(--paper-3);
+  padding-top: 10px;
+}
+
+.sig-box.required { border-top-color: var(--accent); }
+.sig-box.optional { border-top-color: var(--dust); }
+
+.sig-role { font-size: 10px; font-weight: bold; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; letter-spacing: .5px; }
+.sig-name-line {
+  border: none;
+  border-bottom: 1px solid var(--ink-3);
+  background: transparent;
+  width: 100%;
+  padding: 4px 0;
+  font-family: Georgia, serif;
+  font-size: 13px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.sig-name-line:focus { outline: none; border-bottom-color: var(--accent); }
+.sig-date-label { font-size: 9px; color: var(--stone); }
+.sig-date-input {
+  border: none;
+  border-bottom: 1px solid var(--paper-3);
+  background: transparent;
+  width: 100%;
+  padding: 3px 0;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  color: var(--stone);
+}
+.sig-date-input:focus { outline: none; border-bottom-color: var(--accent); }
+
+/* ── JD CARD ── */
+.jd-card {
+  background: var(--cream);
+  border: 1px solid var(--paper-3);
+  border-left: 4px solid var(--jd-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.jd-head {
+  background: var(--paper-2);
+  padding: 14px 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.jd-title { font-size: 15px; font-weight: bold; color: var(--ink); }
+.jd-sub { font-size: 11px; color: var(--stone); }
+.jd-body { padding: 16px 18px; }
+
+.duty-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 80px;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--paper-3);
+  font-size: 12px;
+  align-items: center;
+}
+
+.duty-row.head {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--stone);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.duty-row:last-child { border-bottom: none; }
+.duty-text { line-height: 1.45; }
+.duty-metric { color: var(--accent); font-weight: bold; text-align: center; }
+.duty-cadence { color: var(--stone); text-align: center; font-size: 11px; }
+
+/* ── SOP ── */
+.sop-card {
+  background: var(--cream);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.sop-head {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 11px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.sop-head span { font-size: 10px; color: var(--dust); font-weight: normal; }
+
+.sop-body { padding: 16px 18px; }
+
+.sop-step {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--paper-3);
+  font-size: 12px;
+  align-items: start;
+}
+
+.sop-step:last-child { border-bottom: none; }
+.sop-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.sop-text { line-height: 1.5; color: var(--ink); }
+.sop-text b { color: var(--accent); }
+.sop-measure {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--paper-2);
+  color: var(--ok);
+  white-space: nowrap;
+  margin-top: 3px;
+}
+
+/* ── WEEKLY MATRIX ── */
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.matrix-table th {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 9px 10px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  border-right: 1px solid var(--ink-3);
+}
+
+.matrix-table th:first-child { text-align: left; }
+.matrix-table th:last-child { border-right: none; background: var(--accent); }
+
+.matrix-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--paper-3);
+  border-right: 1px solid var(--paper-3);
+  text-align: center;
+}
+
+.matrix-table td:first-child { text-align: left; font-weight: bold; color: var(--ink); }
+.matrix-table td:last-child {
+  background: var(--paper-2);
+  font-weight: bold;
+  border-right: none;
+}
+
+.matrix-table input.mat-in {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--paper-3);
+  text-align: center;
+  width: 70px;
+  padding: 3px 4px;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.matrix-table input.mat-in:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.matrix-table .calc-cell {
+  color: var(--stone);
+  font-style: italic;
+  font-size: 11px;
+}
+
+.matrix-table tr.total-row td {
+  background: var(--paper-2);
+  font-weight: bold;
+  border-top: 2px solid var(--ink);
+}
+
+.matrix-table tr.floor-row td {
+  background: rgba(192,57,43,.07);
+  color: var(--danger);
+  font-size: 11px;
+}
+
+/* ── CHECKLIST ── */
+.cl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.cl-table th {
+  background: var(--ink-2);
+  color: var(--paper);
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.cl-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--paper-3);
+  vertical-align: middle;
+}
+
+.cl-table tr:nth-child(even) td { background: var(--paper-2); }
+
+.cl-check {
+  width: 18px; height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.cl-input {
+  background: white;
+  border: 1px solid var(--paper-3);
+  border-radius: 3px;
+  padding: 4px 7px;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  color: var(--ink);
+  width: 80px;
+  text-align: right;
+}
+
+.cl-input:focus { outline: none; border-color: var(--accent); }
+
+.cl-status {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--paper-3);
+  margin-right: 4px;
+}
+
+.cl-table tr.group-row td {
+  background: var(--paper-3);
+  font-weight: bold;
+  font-size: 11px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 5px 12px;
+}
+
+/* ── UTILITY ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.badge-om { background: rgba(58,138,74,.12); color: var(--ok); }
+.badge-fm { background: rgba(26,92,138,.12); color: var(--accent-3); }
+.badge-pc { background: rgba(138,26,90,.12); color: #8a1a5a; }
+.badge-gm { background: rgba(184,92,26,.12); color: var(--accent); }
+
+.divider { height: 1px; background: var(--paper-3); margin: 24px 0; }
+
+.note {
+  font-size: 11px;
+  color: var(--stone);
+  line-height: 1.65;
+  font-style: italic;
+  padding: 10px 14px;
+  background: var(--paper-2);
+  border-left: 3px solid var(--dust);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 900px) {
+  .grid-4, .product-strip { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .fr-4, .fr-5 { grid-template-columns: repeat(2, 1fr); }
+  .sig-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .grid-4, .grid-3, .grid-2, .product-strip { grid-template-columns: 1fr; }
+  .fr-3, .fr-2 { grid-template-columns: 1fr; }
+  .nav-brand { display: none; }
+}
+
+@media print {
+  .site-nav { position: static; }
+  .nav-tabs button, .nav-dl { display: none; }
+  .page { display: block !important; page-break-before: always; }
+  .page:first-of-type { page-break-before: avoid; }
+  body { background: white; font-size: 11px; }
+  .form-section-head { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <div class="nav-brand"><strong>4P</strong> Restaurant OS</div>
+  <div class="nav-tabs">
+    <button class="ntab active" onclick="go('p-economics',this)">Economics</button>
+    <button class="ntab" onclick="go('p-jd',this)">Job Descriptions</button>
+    <button class="ntab" onclick="go('p-sop',this)">SOPs</button>
+    <button class="ntab" onclick="go('p-daily',this)">Daily Checklist</button>
+    <button class="ntab" onclick="go('p-weekly',this)">Weekly Report</button>
+    <button class="ntab" onclick="go('p-approval',this)">Approval Docs</button>
+  </div>
+  <button class="nav-dl" onclick="dlSelf()">⬇ Download</button>
+</nav>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 1 — ECONOMICS
+══════════════════════════════════════ -->
+<div id="p-economics" class="page active">
+<div class="wrap">
+
+  <div class="pg-label">Baseline Economics · Four-Product Restaurant</div>
+  <h1 class="pg-title">The Unit of Measure is the Only Lever</h1>
+  <p class="pg-desc">
+    Selling prices are fixed by the market. Fixed overheads (rent, utilities, salaries, statutory) are the floor that must be cleared every single day. The only variable is how much raw material is purchased, how well it yields, and how much wastage is allowed. Every role is accountable to a physical unit — grams, litres, portions, cases.
+  </p>
+
+  <!-- 4 Products -->
+  <div class="section-head">The Four Products — Price &amp; Standard Cost</div>
+  <div class="note">Selling prices are set by the market and do not change. Standard raw material cost per portion is the target. Actual cost per portion is what each shift must achieve or better.</div>
+
+  <div class="product-strip">
+    <div class="pstrip-item">
+      <div class="pstrip-icon">🍚</div>
+      <div class="pstrip-name">Steamed Rice</div>
+      <div class="pstrip-price" style="color:var(--accent-4)">KES 120</div>
+      <div class="pstrip-cost">Raw mat. cost: KES 38/portion</div>
+      <div class="pstrip-cost">Std portion: 280g cooked</div>
+      <div class="pstrip-margin">Gross margin KES 82</div>
+    </div>
+    <div class="pstrip-item">
+      <div class="pstrip-icon">🍗</div>
+      <div class="pstrip-name">Deep-Fried Chicken</div>
+      <div class="pstrip-price" style="color:var(--accent)">KES 320</div>
+      <div class="pstrip-cost">Raw mat. cost: KES 148/portion</div>
+      <div class="pstrip-cost">Std portion: 250g raw → 210g fried</div>
+      <div class="pstrip-margin">Gross margin KES 172</div>
+    </div>
+    <div class="pstrip-item">
+      <div class="pstrip-icon">🥗</div>
+      <div class="pstrip-name">Coleslaw</div>
+      <div class="pstrip-price" style="color:var(--accent-2)">KES 80</div>
+      <div class="pstrip-cost">Raw mat. cost: KES 22/portion</div>
+      <div class="pstrip-cost">Std portion: 120g</div>
+      <div class="pstrip-margin">Gross margin KES 58</div>
+    </div>
+    <div class="pstrip-item">
+      <div class="pstrip-icon">🥤</div>
+      <div class="pstrip-name">Diet Coke</div>
+      <div class="pstrip-price" style="color:var(--accent-3)">KES 100</div>
+      <div class="pstrip-cost">Raw mat. cost: KES 52/can</div>
+      <div class="pstrip-cost">Sold unit: 1 × 330ml can</div>
+      <div class="pstrip-margin">Gross margin KES 48</div>
+    </div>
+  </div>
+
+  <!-- Overhead Baseline -->
+  <div class="section-head">Fixed Daily Overhead — The Floor</div>
+  <div class="note">These costs exist whether we sell one plate or one hundred. They do not change. Gross margin from product sales must exceed this floor before any profit exists.</div>
+
+  <div class="card" style="padding:0; overflow:hidden">
+    <div class="overhead-row head">
+      <div class="oh-label">Cost Line</div>
+      <div class="oh-month">Monthly (KES)</div>
+      <div class="oh-day">Daily (KES)</div>
+      <div class="oh-note">Basis</div>
+    </div>
+    <div class="overhead-row">
+      <div class="oh-label">Rent &amp; Premises</div>
+      <div class="oh-month">45,000</div>
+      <div class="oh-day">1,500</div>
+      <div class="oh-note">÷ 30 days</div>
+    </div>
+    <div class="overhead-row">
+      <div class="oh-label">Electricity &amp; Gas</div>
+      <div class="oh-month">9,000</div>
+      <div class="oh-day">300</div>
+      <div class="oh-note">÷ 30 days</div>
+    </div>
+    <div class="overhead-row">
+      <div class="oh-label">Water</div>
+      <div class="oh-month">3,600</div>
+      <div class="oh-day">120</div>
+      <div class="oh-note">÷ 30 days</div>
+    </div>
+    <div class="overhead-row">
+      <div class="oh-label">Statutory (licences, levies, VAT provision)</div>
+      <div class="oh-month">9,000</div>
+      <div class="oh-day">300</div>
+      <div class="oh-note">÷ 30 days</div>
+    </div>
+    <div class="overhead-row">
+      <div class="oh-label">Salaries — 4 staff</div>
+      <div class="oh-month">120,000</div>
+      <div class="oh-day">4,000</div>
+      <div class="oh-note">÷ 30 days</div>
+    </div>
+    <div class="overhead-row">
+      <div class="oh-label">NSSF / NHIF / Statutory deductions</div>
+      <div class="oh-month">9,600</div>
+      <div class="oh-day">320</div>
+      <div class="oh-note">÷ 30 days</div>
+    </div>
+    <div class="overhead-row total">
+      <div class="oh-label">⚑ Daily Overhead Floor (must clear to break even)</div>
+      <div class="oh-month">196,200</div>
+      <div class="oh-day" style="color:var(--danger)">6,540</div>
+      <div class="oh-note">Every day</div>
+    </div>
+  </div>
+
+  <!-- Break-even table -->
+  <div class="section-head">Break-Even Volume — Minimum Covers Per Day</div>
+  <div class="note">
+    Assume every customer buys one plate of rice + one chicken + one coleslaw + one Diet Coke (a "full cover" at KES 620).
+    Gross margin per full cover = KES 82 + 172 + 58 + 48 = <strong>KES 360</strong>.
+    Break-even = KES 6,540 ÷ KES 360 = <strong>18.2 full covers.</strong>
+    Any day with fewer than 19 full covers and no partial sales is a loss day.
+  </div>
+
+  <div class="card-grid grid-3">
+    <div class="card" style="text-align:center">
+      <div class="pg-label">Break-even covers</div>
+      <div class="ps-value" style="font-size:36px">19</div>
+      <div style="font-size:12px; color:var(--stone)">full covers/day minimum</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="pg-label">Gross margin / full cover</div>
+      <div class="ps-value" style="font-size:36px; color:var(--ok)">360</div>
+      <div style="font-size:12px; color:var(--stone)">KES after raw material</div>
+    </div>
+    <div class="card" style="text-align:center">
+      <div class="pg-label">Target covers (15% profit buffer)</div>
+      <div class="ps-value" style="font-size:36px; color:var(--accent)">22</div>
+      <div style="font-size:12px; color:var(--stone)">generates ~KES 7,920 gross margin</div>
+    </div>
+  </div>
+
+  <!-- Raw material unit levers -->
+  <div class="section-head">The Raw Material Levers — What Each Role Controls</div>
+  <div class="note">
+    Price does not change. Volume sold depends on customers. The only management lever is the raw material unit: how much is ordered, how efficiently it yields, and how much is wasted. A 10% yield improvement on chicken is worth more than any other action.
+  </div>
+
+  <table class="uom-table">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Raw Material</th>
+        <th>Standard Purchase Unit</th>
+        <th>Standard Portion Yield</th>
+        <th>Portions per Purchase Unit</th>
+        <th>Wastage Tolerance</th>
+        <th class="lever">Owner Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🍚 Rice</td>
+        <td>Long-grain white rice</td>
+        <td>25 kg sack</td>
+        <td>280g cooked (from 100g raw × 2.8× absorption)</td>
+        <td>~250 portions / sack</td>
+        <td>≤ 3% per sack</td>
+        <td class="lever">OM (production)</td>
+      </tr>
+      <tr>
+        <td>🍗 Chicken</td>
+        <td>Whole/jointed chicken</td>
+        <td>Per kg (live-weight equivalent)</td>
+        <td>250g raw portion → 210g fried (84% fry yield)</td>
+        <td>4 portions per kg raw</td>
+        <td>≤ 8% fry loss over standard</td>
+        <td class="lever">OM (fryer)</td>
+      </tr>
+      <tr>
+        <td>🥗 Coleslaw</td>
+        <td>Cabbage, carrot, mayo</td>
+        <td>Per head cabbage (1.2 kg avg)</td>
+        <td>120g per portion; 1 head → ~8 portions</td>
+        <td>8 portions / head cabbage</td>
+        <td>≤ 10% trim loss</td>
+        <td class="lever">OM (prep)</td>
+      </tr>
+      <tr>
+        <td>🥤 Diet Coke</td>
+        <td>330ml cans — case of 24</td>
+        <td>Case of 24 cans</td>
+        <td>1 can = 1 portion (no yield loss)</td>
+        <td>24 portions / case</td>
+        <td>0% — unit item</td>
+        <td class="lever">FM (stock)</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 2 — JOB DESCRIPTIONS
+══════════════════════════════════════ -->
+<div id="p-jd" class="page">
+<div class="wrap">
+
+  <div class="pg-label">Job Descriptions · Four Roles</div>
+  <h1 class="pg-title">Duties Expressed as Daily Measurable Obligations</h1>
+  <p class="pg-desc">
+    Every duty in these JDs produces a number on the daily checklist. If a duty cannot be reduced to a daily measurable output, it does not belong in the JD. Each role owns one or more raw material levers and is evaluated against those levers, not against effort.
+  </p>
+
+  <!-- GM JD -->
+  <div class="jd-card" style="--jd-color: var(--accent)">
+    <div class="jd-head">
+      <div>
+        <div class="jd-title">General Manager</div>
+        <div class="jd-sub">Custodian of daily profit signal and cross-role accountability</div>
+      </div>
+      <span class="badge badge-gm">GM</span>
+    </div>
+    <div class="jd-body">
+      <div class="duty-row head">
+        <div>Duty</div><div>Daily Metric</div><div>Cadence</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Review opening stock counts submitted by OM; approve or flag discrepancy before cooking begins</div>
+        <div class="duty-metric">Stock variance (KES)</div>
+        <div class="duty-cadence">Daily 07:00</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Sign procurement order raised by FM before any raw material purchase is committed</div>
+        <div class="duty-metric">Order approved Y/N</div>
+        <div class="duty-cadence">Daily or as raised</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Review end-of-day profit signal: gross margin vs overhead floor; classify day as Profit / Break-even / Loss</div>
+        <div class="duty-metric">Net day result (KES)</div>
+        <div class="duty-cadence">Daily 21:00</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">If wastage exceeds tolerance on any product, issue a Wastage Directive (WD form) before next shift opens</div>
+        <div class="duty-metric">WD issued Y/N</div>
+        <div class="duty-cadence">Same day</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Approve any price change, menu addition, or overhead variance above 10% — no other role has this authority</div>
+        <div class="duty-metric">Change approved Y/N</div>
+        <div class="duty-cadence">As required</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Review weekly profit matrix every Monday; identify the lowest-yield product and assign corrective action to the owning role</div>
+        <div class="duty-metric">Weekly review signed</div>
+        <div class="duty-cadence">Weekly Mon</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FM JD -->
+  <div class="jd-card" style="--jd-color: var(--accent-3)">
+    <div class="jd-head">
+      <div>
+        <div class="jd-title">Finance Manager</div>
+        <div class="jd-sub">Custodian of cash, procurement authority, stock reconciliation, and overhead tracking</div>
+      </div>
+      <span class="badge badge-fm">FM</span>
+    </div>
+    <div class="jd-body">
+      <div class="duty-row head">
+        <div>Duty</div><div>Daily Metric</div><div>Cadence</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Raise the daily/weekly procurement order based on OM's projected covers and current stock levels; submit to GM for sign-off</div>
+        <div class="duty-metric">Order value (KES)</div>
+        <div class="duty-cadence">Daily 07:30</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Receive delivered raw materials; count against order; log any short delivery or substitution before OM begins prep</div>
+        <div class="duty-metric">Delivery match % </div>
+        <div class="duty-cadence">At delivery</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Count Diet Coke cases at opening and closing; reconcile units sold against cases opened; log any variance</div>
+        <div class="duty-metric">Coke variance (units)</div>
+        <div class="duty-cadence">Daily open/close</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Record all cash sales per product at close; calculate actual gross margin against standard; submit to GM</div>
+        <div class="duty-metric">Actual vs standard GM (KES)</div>
+        <div class="duty-cadence">Daily 20:30</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Track daily overhead spend; flag any unplanned cost to GM on the same day it occurs</div>
+        <div class="duty-metric">Overhead variance (KES)</div>
+        <div class="duty-cadence">Daily</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Compile the weekly profit matrix from five daily records; present to GM every Monday before 09:00</div>
+        <div class="duty-metric">Weekly matrix submitted Y/N</div>
+        <div class="duty-cadence">Weekly Mon</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OM JD -->
+  <div class="jd-card" style="--jd-color: var(--ok)">
+    <div class="jd-head">
+      <div>
+        <div class="jd-title">Operations Manager</div>
+        <div class="jd-sub">Custodian of production yield, portion control, wastage, and service execution</div>
+      </div>
+      <span class="badge badge-om">OM</span>
+    </div>
+    <div class="jd-body">
+      <div class="duty-row head">
+        <div>Duty</div><div>Daily Metric</div><div>Cadence</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Count all raw materials at opening; log quantity on hand per product against minimum par level; raise shortfall alert to FM</div>
+        <div class="duty-metric">Stock-on-hand (kg/units)</div>
+        <div class="duty-cadence">Daily 07:00</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Prepare rice batches to standard: 100g raw → 280g cooked ± 10g. Log batch size and portions yielded each batch</div>
+        <div class="duty-metric">Portions yielded / batch</div>
+        <div class="duty-cadence">Per batch</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Fry chicken to standard: 250g raw → target ≥ 210g fried. Weigh one portion per fryer batch and log; flag if fry yield &lt; 80%</div>
+        <div class="duty-metric">Fry yield % per batch</div>
+        <div class="duty-cadence">Per batch</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Prepare coleslaw in standard batches: 1 head cabbage → 8 × 120g portions. Log trim waste per head</div>
+        <div class="duty-metric">Portions per head</div>
+        <div class="duty-cadence">Per batch</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Log all wastage by product and cause (over-cooking, spoilage, over-prep) before disposing; obtain GM signature on any wastage &gt; KES 500</div>
+        <div class="duty-metric">Wastage (KES value)</div>
+        <div class="duty-cadence">Per event</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Report total covers served and portions sold per product at end of service; reconcile against FM's sales record</div>
+        <div class="duty-metric">Covers served (#)</div>
+        <div class="duty-cadence">Daily 20:00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PC JD -->
+  <div class="jd-card" style="--jd-color: #8a1a5a">
+    <div class="jd-head">
+      <div>
+        <div class="jd-title">People &amp; Culture Manager</div>
+        <div class="jd-sub">Custodian of labour supply, statutory compliance, staff yield, and conduct</div>
+      </div>
+      <span class="badge badge-pc">PC</span>
+    </div>
+    <div class="jd-body">
+      <div class="duty-row head">
+        <div>Duty</div><div>Daily Metric</div><div>Cadence</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Confirm all scheduled staff are on-site and assigned to stations before service opens; log any absence and activate cover</div>
+        <div class="duty-metric">Staff on station (#)</div>
+        <div class="duty-cadence">Daily 07:15</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Record daily attendance with time-in/time-out; submit to FM for payroll accuracy; flag overtime before it is incurred</div>
+        <div class="duty-metric">Hours logged per staff</div>
+        <div class="duty-cadence">Daily</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Conduct one observed portion-control check per shift per station; log finding and coach immediately if standard is missed</div>
+        <div class="duty-metric">Checks done (#); deviations</div>
+        <div class="duty-cadence">Per shift</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Ensure food hygiene, uniform, and safety standards are met at opening and maintained through service; log any breach</div>
+        <div class="duty-metric">Compliance items green (#)</div>
+        <div class="duty-cadence">Daily</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Maintain statutory records: NHIF, NSSF contributions current, food-handler certificates valid; alert FM 30 days before expiry</div>
+        <div class="duty-metric">Compliance days remaining</div>
+        <div class="duty-cadence">Weekly</div>
+      </div>
+      <div class="duty-row">
+        <div class="duty-text">Log any conduct or performance issue with date, description, and action taken; escalate to GM if repeated within 7 days</div>
+        <div class="duty-metric">Cases open / closed</div>
+        <div class="duty-cadence">As occurs</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 3 — SOPs
+══════════════════════════════════════ -->
+<div id="p-sop" class="page">
+<div class="wrap">
+
+  <div class="pg-label">Standard Operating Procedures</div>
+  <h1 class="pg-title">Five Core SOPs — The Physical Unit in Every Step</h1>
+  <p class="pg-desc">
+    Each SOP names the exact quantity at every step. There is no room for interpretation. Where a quantity is marked as the standard, any deviation must be logged immediately and brought to the OM's attention.
+  </p>
+
+  <!-- SOP 1 — Procurement -->
+  <div class="sop-card">
+    <div class="sop-head">SOP-01 · Procurement &amp; Delivery <span>Owner: FM · Approval: GM</span></div>
+    <div class="sop-body">
+      <div class="sop-step">
+        <div class="sop-num">1</div>
+        <div class="sop-text">OM counts raw material stock at 07:00 and submits quantity-on-hand to FM via the daily checklist (Page 4).</div>
+        <div class="sop-measure">By 07:15</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">2</div>
+        <div class="sop-text">FM calculates required order based on: <b>par level − stock on hand + projected covers × portions per cover</b>. Par level = 2-day supply for each product.</div>
+        <div class="sop-measure">Formula-driven</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">3</div>
+        <div class="sop-text">FM completes the Procurement Order form (Page 6 · PO-01) and submits to GM for signature before any commitment to supplier.</div>
+        <div class="sop-measure">GM signs before order</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">4</div>
+        <div class="sop-text">On delivery: FM receives goods, weighs or counts every item against the order. <b>Chicken: weigh per kg. Rice: check sack weight. Cabbage: count heads. Coke: count cases.</b></div>
+        <div class="sop-measure">100% check, no exceptions</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">5</div>
+        <div class="sop-text">Any short delivery or quality failure: FM does not sign the delivery note. Supplier must replace or issue credit before FM accepts and signs.</div>
+        <div class="sop-measure">No signature = not accepted</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">6</div>
+        <div class="sop-text">FM logs the delivery on the daily checklist (actual received vs ordered), and GM is notified of any discrepancy immediately.</div>
+        <div class="sop-measure">Same-day log</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOP 2 — Rice -->
+  <div class="sop-card">
+    <div class="sop-head">SOP-02 · Rice Production <span>Owner: OM · Cadence: Per batch</span></div>
+    <div class="sop-body">
+      <div class="sop-step">
+        <div class="sop-num">1</div>
+        <div class="sop-text">Measure raw rice using the standard scoop: <b>100g raw rice per portion target</b>. For a 20-portion batch: weigh 2,000g raw rice on the kitchen scale. Log batch weight before cooking.</div>
+        <div class="sop-measure">Scale to ±5g</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">2</div>
+        <div class="sop-text">Rinse, add water at ratio 1:1.8 (100g rice : 180ml water). Bring to boil, reduce heat, cook covered for 18 minutes. No opening lid during cooking.</div>
+        <div class="sop-measure">1:1.8 ratio · 18 min</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">3</div>
+        <div class="sop-text">After cooking, weigh one portion from the batch using the portion scoop. Target: <b>280g ± 15g</b>. If below 255g, adjust water ratio before next batch and log correction.</div>
+        <div class="sop-measure">280g ± 15g</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">4</div>
+        <div class="sop-text">Record: batch number, raw weight in, portions yielded, one-portion weight check. Submit on daily checklist.</div>
+        <div class="sop-measure">Log before service</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">5</div>
+        <div class="sop-text">Rice held for more than 4 hours after cooking is written off as wastage. No reheating for service. Log weight and value; OM signs wastage log.</div>
+        <div class="sop-measure">4hr shelf life — no exceptions</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOP 3 — Chicken -->
+  <div class="sop-card">
+    <div class="sop-head">SOP-03 · Deep-Fried Chicken Production <span>Owner: OM · Cadence: Per fryer batch</span></div>
+    <div class="sop-body">
+      <div class="sop-step">
+        <div class="sop-num">1</div>
+        <div class="sop-text">Portion raw chicken at <b>250g ± 10g per piece</b> using scale before marinating. Offcuts and bones logged as trim — not wastage if within 16% of whole-bird weight.</div>
+        <div class="sop-measure">250g raw ± 10g</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">2</div>
+        <div class="sop-text">Marinate minimum 2 hours. Standard marinade batch covers 10 portions. Log batch start time and portion count before frying.</div>
+        <div class="sop-measure">Min 2 hrs marinate</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">3</div>
+        <div class="sop-text">Oil temperature: <b>175°C ± 5°C</b> before any chicken enters the fryer. Check with probe. Fry time: 12–14 minutes per batch, turning once at 6 minutes.</div>
+        <div class="sop-measure">175°C · 12–14 min</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">4</div>
+        <div class="sop-text">Weigh one piece from every fryer batch after draining. Target: <b>≥ 210g fried</b> (84% fry yield). If below 200g, log as a yield failure and report to OM immediately.</div>
+        <div class="sop-measure">≥ 210g cooked</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">5</div>
+        <div class="sop-text">Frying oil: change after every 20 kg of chicken fried or at close of day, whichever is sooner. Log oil change date and volume used in the oil log (part of daily checklist).</div>
+        <div class="sop-measure">Every 20 kg chicken</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">6</div>
+        <div class="sop-text">Fried chicken not served within 30 minutes is written off as wastage. No exceptions, no re-frying. Log piece count, weight, and KES value.</div>
+        <div class="sop-measure">30-min service window</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOP 4 — Coleslaw -->
+  <div class="sop-card">
+    <div class="sop-head">SOP-04 · Coleslaw Production <span>Owner: OM · Cadence: Per prep batch</span></div>
+    <div class="sop-body">
+      <div class="sop-step">
+        <div class="sop-num">1</div>
+        <div class="sop-text">Take one head of cabbage (avg 1.2 kg). Remove outer leaves (log trim). Shred entire head. Expected usable shred: <b>≥ 1.0 kg</b> (≤ 10% trim loss).</div>
+        <div class="sop-measure">≥ 1.0 kg usable per head</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">2</div>
+        <div class="sop-text">Grate 2 medium carrots (~200g total) per head of cabbage. Mix with shredded cabbage. Add <b>80g mayonnaise</b> per head-batch. Toss to coat evenly.</div>
+        <div class="sop-measure">80g mayo per head-batch</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">3</div>
+        <div class="sop-text">Portion into <b>8 × 120g servings</b> per head-batch using the portion scoop and scale. Any excess goes into a surplus container — not wasted.</div>
+        <div class="sop-measure">8 portions × 120g</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">4</div>
+        <div class="sop-text">Log: heads used, portions yielded, trim weight, and any surplus. Coleslaw shelf life from prep: <b>4 hours refrigerated</b>. Label container with prep time.</div>
+        <div class="sop-measure">4 hrs fridge · log always</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOP 5 — Close and Wastage -->
+  <div class="sop-card">
+    <div class="sop-head">SOP-05 · End-of-Day Close &amp; Wastage Reconciliation <span>Owner: FM + OM · Signed: GM</span></div>
+    <div class="sop-body">
+      <div class="sop-step">
+        <div class="sop-num">1</div>
+        <div class="sop-text">OM counts: remaining uncooked stock per product, any cooked-but-unsold portions (to be written off). Log quantities by product.</div>
+        <div class="sop-measure">Physical count, no estimates</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">2</div>
+        <div class="sop-text">FM reconciles: opening stock + received today − ending stock = consumed. Consumed should equal portions sold (from sales record). Any gap = wastage or unrecorded sale.</div>
+        <div class="sop-measure">Consumed = sold ± waste</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">3</div>
+        <div class="sop-text">FM records cash takings per product. Calculates actual gross margin (revenue − raw material cost of portions sold). Compares to overhead floor of <b>KES 6,540</b>.</div>
+        <div class="sop-measure">vs KES 6,540 floor</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">4</div>
+        <div class="sop-text">Any total wastage value over <b>KES 500</b> requires the Wastage Write-Off Approval form (WO-01, Page 6). OM and FM sign; GM countersigns before disposal is recorded.</div>
+        <div class="sop-measure">WO-01 if &gt; KES 500</div>
+      </div>
+      <div class="sop-step">
+        <div class="sop-num">5</div>
+        <div class="sop-text">GM reviews and signs the daily checklist. Files physically. Profit/Loss classification entered. Tomorrow's opening stock note prepared and left for OM.</div>
+        <div class="sop-measure">GM signs before lockup</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 4 — DAILY CHECKLIST
+══════════════════════════════════════ -->
+<div id="p-daily" class="page">
+<div class="wrap">
+
+  <div class="pg-label">Daily Operating Checklist · One Form, Four Roles</div>
+  <h1 class="pg-title">Fill by Hand — 8 Minutes Maximum</h1>
+  <p class="pg-desc">
+    This form is completed once per operating day. Each role fills its own section. No interpretation required — every field is a number, a count, or a yes/no. The GM signs the bottom at close of day. The completed form is the business's daily audit record.
+  </p>
+
+  <!-- Header info -->
+  <div class="form-section">
+    <div class="form-section-head">Day Header <span style="font-size:10px; opacity:.7">Completed by: FM or GM on opening</span></div>
+    <div class="form-body">
+      <div class="field-row fr-4">
+        <div class="field"><label>Date</label><input type="date" placeholder="DD/MM/YYYY"></div>
+        <div class="field"><label>Day of Week</label>
+          <select>
+            <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+            <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+          </select>
+        </div>
+        <div class="field"><label>Opening Time</label><input type="time" placeholder="07:00"></div>
+        <div class="field"><label>Target Covers Today</label><input type="number" placeholder="22" min="0"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION A — OM Opening -->
+  <div class="form-section">
+    <div class="form-section-head" style="background:#2a4a2e">
+      A · Operations Manager — Opening Stock Count
+      <span class="role-badge" style="background:var(--ok); color:white">OM · By 07:15</span>
+    </div>
+    <div class="form-body">
+      <div class="note" style="margin-bottom:14px">Count every item physically. No estimates. If any item is below par level, circle it and alert FM immediately.</div>
+
+      <table class="cl-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Unit</th>
+            <th>Par Level (2-day)</th>
+            <th>On Hand</th>
+            <th>Below Par?</th>
+            <th>Alert Sent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🍚 White rice (raw)</td>
+            <td>kg</td>
+            <td>20 kg</td>
+            <td><input class="cl-input" type="number" placeholder="0.0" step="0.1"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>🍗 Chicken (raw, portioned)</td>
+            <td>kg</td>
+            <td>22 kg</td>
+            <td><input class="cl-input" type="number" placeholder="0.0" step="0.1"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>🥗 Cabbage (heads)</td>
+            <td>heads</td>
+            <td>6 heads</td>
+            <td><input class="cl-input" type="number" placeholder="0"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>🥗 Carrots</td>
+            <td>kg</td>
+            <td>1.5 kg</td>
+            <td><input class="cl-input" type="number" placeholder="0.0" step="0.1"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>🥗 Mayonnaise</td>
+            <td>kg</td>
+            <td>1.0 kg</td>
+            <td><input class="cl-input" type="number" placeholder="0.0" step="0.1"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>🥤 Diet Coke (cases of 24)</td>
+            <td>cases</td>
+            <td>2 cases</td>
+            <td><input class="cl-input" type="number" placeholder="0"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>🛢 Frying oil</td>
+            <td>litres</td>
+            <td>10 L</td>
+            <td><input class="cl-input" type="number" placeholder="0.0" step="0.1"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-row fr-2" style="margin-top:14px">
+        <div class="field"><label>OM Signature (opening)</label><input type="text" placeholder="Signed: _______________"></div>
+        <div class="field"><label>GM Reviewed (opening)</label><input type="text" placeholder="Signed: _______________"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION B — PC Opening -->
+  <div class="form-section">
+    <div class="form-section-head" style="background:#3a1a30">
+      B · People &amp; Culture — Opening Staff &amp; Compliance Check
+      <span class="role-badge" style="background:#8a1a5a; color:white">PC · By 07:15</span>
+    </div>
+    <div class="form-body">
+      <table class="cl-table">
+        <thead>
+          <tr>
+            <th>Staff Role</th>
+            <th>Name</th>
+            <th>Time In</th>
+            <th>Station Assigned</th>
+            <th>Uniform ✓</th>
+            <th>Food Handler Cert Valid</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Fryer / Chef</td>
+            <td><input class="cl-input" type="text" style="width:120px; text-align:left" placeholder="Name"></td>
+            <td><input class="cl-input" type="time" style="width:80px"></td>
+            <td><input class="cl-input" type="text" style="width:100px; text-align:left" placeholder="Station"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>Rice / Prep</td>
+            <td><input class="cl-input" type="text" style="width:120px; text-align:left" placeholder="Name"></td>
+            <td><input class="cl-input" type="time" style="width:80px"></td>
+            <td><input class="cl-input" type="text" style="width:100px; text-align:left" placeholder="Station"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>Counter / Service</td>
+            <td><input class="cl-input" type="text" style="width:120px; text-align:left" placeholder="Name"></td>
+            <td><input class="cl-input" type="time" style="width:80px"></td>
+            <td><input class="cl-input" type="text" style="width:100px; text-align:left" placeholder="Station"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td>Cashier / FM</td>
+            <td><input class="cl-input" type="text" style="width:120px; text-align:left" placeholder="Name"></td>
+            <td><input class="cl-input" type="time" style="width:80px"></td>
+            <td><input class="cl-input" type="text" style="width:100px; text-align:left" placeholder="Cashier"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-row fr-3" style="margin-top:14px">
+        <div class="field"><label>Staff count confirmed</label><input type="number" placeholder="4" min="0" max="10"></div>
+        <div class="field"><label>Any absence today</label>
+          <select><option>No absence</option><option>1 absent — cover arranged</option><option>1 absent — no cover</option></select>
+        </div>
+        <div class="field"><label>PC Signature</label><input type="text" placeholder="Signed: _______________"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION C — OM Production -->
+  <div class="form-section">
+    <div class="form-section-head" style="background:#2a4a2e">
+      C · Operations Manager — Production &amp; Yield Log (fill per batch, during service)
+      <span class="role-badge" style="background:var(--ok); color:white">OM · Per Batch</span>
+    </div>
+    <div class="form-body">
+
+      <!-- Rice -->
+      <div class="product-form-row">
+        <div class="pfr-head">🍚 Rice — Batch Log</div>
+        <div class="pfr-body">
+          <table class="cl-table">
+            <thead><tr><th>Batch #</th><th>Raw (g)</th><th>Portions Targeted</th><th>Portions Yielded</th><th>1-Portion Weight (g)</th><th>Within 280g ± 15g?</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><input class="cl-input" type="number" placeholder="2000"></td>
+                <td><input class="cl-input" type="number" placeholder="20"></td>
+                <td><input class="cl-input" type="number" placeholder="20"></td>
+                <td><input class="cl-input" type="number" placeholder="280"></td>
+                <td><input class="cl-check" type="checkbox" checked></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-check" type="checkbox"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Chicken -->
+      <div class="product-form-row">
+        <div class="pfr-head">🍗 Chicken — Fryer Batch Log</div>
+        <div class="pfr-body">
+          <table class="cl-table">
+            <thead><tr><th>Batch #</th><th>Portions In</th><th>Oil Temp °C</th><th>Fry Time (min)</th><th>Sample Weight (g)</th><th>Yield ≥ 210g?</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><input class="cl-input" type="number" placeholder="8"></td>
+                <td><input class="cl-input" type="number" placeholder="175"></td>
+                <td><input class="cl-input" type="number" placeholder="13"></td>
+                <td><input class="cl-input" type="number" placeholder="215"></td>
+                <td><input class="cl-check" type="checkbox" checked></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-check" type="checkbox"></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-check" type="checkbox"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Coleslaw -->
+      <div class="product-form-row">
+        <div class="pfr-head">🥗 Coleslaw — Prep Batch Log</div>
+        <div class="pfr-body">
+          <table class="cl-table">
+            <thead><tr><th>Heads Used</th><th>Trim Weight (g)</th><th>Usable Shred (g)</th><th>Portions Yielded</th><th>Yield ≥ 8 / head?</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><input class="cl-input" type="number" placeholder="3"></td>
+                <td><input class="cl-input" type="number" placeholder="180"></td>
+                <td><input class="cl-input" type="number" placeholder="3000"></td>
+                <td><input class="cl-input" type="number" placeholder="24"></td>
+                <td><input class="cl-check" type="checkbox" checked></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Wastage -->
+      <div class="product-form-row">
+        <div class="pfr-head">⚠ Wastage Log — Enter any written-off product during the day</div>
+        <div class="pfr-body">
+          <table class="cl-table">
+            <thead><tr><th>Time</th><th>Product</th><th>Qty / Weight</th><th>Cause</th><th>KES Value</th><th>WO-01 Required?</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><input class="cl-input" type="time" style="width:70px"></td>
+                <td><select style="font-size:11px; padding:3px 5px; border:1px solid var(--paper-3); border-radius:3px; background:white">
+                  <option>Rice</option><option>Chicken</option><option>Coleslaw</option><option>Coke</option><option>Oil</option>
+                </select></td>
+                <td><input class="cl-input" type="text" placeholder="0g / 0 units" style="width:90px"></td>
+                <td><select style="font-size:11px; padding:3px 5px; border:1px solid var(--paper-3); border-radius:3px; background:white">
+                  <option>Over-prep</option><option>Spoilage</option><option>Overcooking</option><option>Dropped</option><option>Time expired</option>
+                </select></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-check" type="checkbox"></td>
+              </tr>
+              <tr>
+                <td><input class="cl-input" type="time" style="width:70px"></td>
+                <td><select style="font-size:11px; padding:3px 5px; border:1px solid var(--paper-3); border-radius:3px; background:white">
+                  <option>Rice</option><option>Chicken</option><option>Coleslaw</option><option>Coke</option><option>Oil</option>
+                </select></td>
+                <td><input class="cl-input" type="text" placeholder="0g / 0 units" style="width:90px"></td>
+                <td><select style="font-size:11px; padding:3px 5px; border:1px solid var(--paper-3); border-radius:3px; background:white">
+                  <option>Over-prep</option><option>Spoilage</option><option>Overcooking</option><option>Dropped</option><option>Time expired</option>
+                </select></td>
+                <td><input class="cl-input" type="number" placeholder="0"></td>
+                <td><input class="cl-check" type="checkbox"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION D — FM Sales & Cash -->
+  <div class="form-section">
+    <div class="form-section-head" style="background:#1a2a3a">
+      D · Finance Manager — Sales Count &amp; Cash Close
+      <span class="role-badge" style="background:var(--accent-3); color:white">FM · By 20:30</span>
+    </div>
+    <div class="form-body">
+      <table class="cl-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Selling Price (KES)</th>
+            <th>Portions Sold</th>
+            <th>Gross Revenue (KES)</th>
+            <th>Std Raw Mat Cost/Portion</th>
+            <th>Total Raw Mat Cost (KES)</th>
+            <th>Gross Margin (KES)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🍚 Rice</td>
+            <td>120</td>
+            <td><input class="cl-input" type="number" placeholder="22" id="rs"></td>
+            <td class="calc-cell" id="rrev">—</td>
+            <td>38</td>
+            <td class="calc-cell" id="rcost">—</td>
+            <td class="calc-cell" id="rgm">—</td>
+          </tr>
+          <tr>
+            <td>🍗 Chicken</td>
+            <td>320</td>
+            <td><input class="cl-input" type="number" placeholder="22" id="cs"></td>
+            <td class="calc-cell" id="crev">—</td>
+            <td>148</td>
+            <td class="calc-cell" id="ccost">—</td>
+            <td class="calc-cell" id="cgm">—</td>
+          </tr>
+          <tr>
+            <td>🥗 Coleslaw</td>
+            <td>80</td>
+            <td><input class="cl-input" type="number" placeholder="22" id="cos"></td>
+            <td class="calc-cell" id="corev">—</td>
+            <td>22</td>
+            <td class="calc-cell" id="cocost">—</td>
+            <td class="calc-cell" id="cogm">—</td>
+          </tr>
+          <tr>
+            <td>🥤 Diet Coke</td>
+            <td>100</td>
+            <td><input class="cl-input" type="number" placeholder="18" id="dcs"></td>
+            <td class="calc-cell" id="dcrev">—</td>
+            <td>52</td>
+            <td class="calc-cell" id="dccost">—</td>
+            <td class="calc-cell" id="dcgm">—</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="3">Total</td>
+            <td class="calc-cell" id="totrev"><strong>—</strong></td>
+            <td></td>
+            <td class="calc-cell" id="totcost"><strong>—</strong></td>
+            <td class="calc-cell" id="totgm"><strong>—</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-row fr-3" style="margin-top:16px">
+        <div class="field"><label>Total Cash in Till (KES)</label><input type="number" placeholder="0" id="tillin"></div>
+        <div class="field"><label>Expected Cash (from above)</label><input type="number" placeholder="0" id="expected" readonly></div>
+        <div class="field"><label>Cash Variance (KES)</label><input type="number" placeholder="0" id="cashvar" readonly></div>
+      </div>
+
+      <!-- Diet Coke reconciliation -->
+      <div class="field-row fr-4" style="margin-top:10px">
+        <div class="field"><label>Coke Cases Open (start)</label><input type="number" placeholder="2" id="cokeopen"></div>
+        <div class="field"><label>Cases Opened Today</label><input type="number" placeholder="0" id="cokeadded"></div>
+        <div class="field"><label>Cans Sold</label><input type="number" placeholder="18" id="cokesold"></div>
+        <div class="field"><label>Cans Remaining (physical count)</label><input type="number" placeholder="0" id="cokerem"></div>
+      </div>
+
+      <div class="field-row fr-2" style="margin-top:10px">
+        <div class="field"><label>FM Signature (close)</label><input type="text" placeholder="Signed: _______________"></div>
+        <div class="field"><label>Overhead spend today — any unplanned cost?</label>
+          <select><option>No — within plan</option><option>Yes — flagged to GM</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION E — GM Daily Profit Signal -->
+  <div class="form-section">
+    <div class="form-section-head" style="background:var(--accent)">
+      E · General Manager — Daily Profit Signal &amp; Sign-off
+      <span class="role-badge" style="background:white; color:var(--accent)">GM · Before Lockup</span>
+    </div>
+    <div class="form-body">
+
+      <div class="profit-signal" id="profit-signal-box">
+        <div class="ps-label">Today's Gross Margin vs Overhead Floor (KES 6,540)</div>
+        <div class="ps-value" id="ps-margin">—</div>
+        <div class="ps-signal" id="ps-classify">Enter sales figures in Section D to generate signal</div>
+      </div>
+
+      <div class="field-row fr-3">
+        <div class="field"><label>Day classified as</label>
+          <select id="dayclassify">
+            <option>— Select after reviewing figures —</option>
+            <option>✅ Profit Day</option>
+            <option>⚠ Break-Even Day</option>
+            <option>🔴 Loss Day</option>
+          </select>
+        </div>
+        <div class="field"><label>Wastage Directive required?</label>
+          <select><option>No</option><option>Yes — WD issued (attach)</option></select>
+        </div>
+        <div class="field"><label>Tomorrow's key action</label><input type="text" placeholder="e.g. Reduce chicken prep by 2kg"></div>
+      </div>
+
+      <div class="field-row fr-2" style="margin-top:14px">
+        <div class="field"><label>GM Signature — Daily sign-off</label><input type="text" placeholder="Signed: _______________"></div>
+        <div class="field"><label>Closing Time</label><input type="time"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 5 — WEEKLY REPORT MATRIX
+══════════════════════════════════════ -->
+<div id="p-weekly" class="page">
+<div class="wrap">
+
+  <div class="pg-label">Weekly Profit &amp; Yield Report Matrix</div>
+  <h1 class="pg-title">Monday Morning — Five Days at a Glance</h1>
+  <p class="pg-desc">
+    FM compiles this from the five daily checklists and presents to GM before 09:00 every Monday. It answers one question per row: did we yield enough from our raw material to clear the floor? Every red cell points to the role responsible.
+  </p>
+
+  <div class="section-head">Covers &amp; Revenue</div>
+  <div style="overflow-x:auto; margin-bottom:24px">
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Week Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Rice portions sold</td><td><input class="mat-in" type="number" placeholder="22"></td><td><input class="mat-in" type="number" placeholder="20"></td><td><input class="mat-in" type="number" placeholder="25"></td><td><input class="mat-in" type="number" placeholder="18"></td><td><input class="mat-in" type="number" placeholder="28"></td><td class="calc-cell">—</td></tr>
+        <tr><td>Chicken portions sold</td><td><input class="mat-in" type="number" placeholder="22"></td><td><input class="mat-in" type="number" placeholder="20"></td><td><input class="mat-in" type="number" placeholder="25"></td><td><input class="mat-in" type="number" placeholder="18"></td><td><input class="mat-in" type="number" placeholder="28"></td><td class="calc-cell">—</td></tr>
+        <tr><td>Coleslaw portions sold</td><td><input class="mat-in" type="number" placeholder="22"></td><td><input class="mat-in" type="number" placeholder="20"></td><td><input class="mat-in" type="number" placeholder="25"></td><td><input class="mat-in" type="number" placeholder="18"></td><td><input class="mat-in" type="number" placeholder="28"></td><td class="calc-cell">—</td></tr>
+        <tr><td>Diet Coke cans sold</td><td><input class="mat-in" type="number" placeholder="18"></td><td><input class="mat-in" type="number" placeholder="16"></td><td><input class="mat-in" type="number" placeholder="20"></td><td><input class="mat-in" type="number" placeholder="14"></td><td><input class="mat-in" type="number" placeholder="22"></td><td class="calc-cell">—</td></tr>
+        <tr class="total-row"><td>Gross Revenue (KES)</td><td><input class="mat-in" type="number" placeholder="13,560"></td><td><input class="mat-in" type="number" placeholder="12,280"></td><td><input class="mat-in" type="number" placeholder="15,500"></td><td><input class="mat-in" type="number" placeholder="11,060"></td><td><input class="mat-in" type="number" placeholder="17,240"></td><td class="calc-cell">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-head">Gross Margin vs Overhead Floor</div>
+  <div style="overflow-x:auto; margin-bottom:24px">
+    <table class="matrix-table">
+      <thead>
+        <tr><th>Metric</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Week Total</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Total raw material cost (KES)</td><td><input class="mat-in" type="number" placeholder="4,840"></td><td><input class="mat-in" type="number" placeholder="4,400"></td><td><input class="mat-in" type="number" placeholder="5,500"></td><td><input class="mat-in" type="number" placeholder="3,960"></td><td><input class="mat-in" type="number" placeholder="6,160"></td><td class="calc-cell">—</td></tr>
+        <tr><td>Gross margin (KES)</td><td><input class="mat-in" type="number" placeholder="8,720"></td><td><input class="mat-in" type="number" placeholder="7,880"></td><td><input class="mat-in" type="number" placeholder="10,000"></td><td><input class="mat-in" type="number" placeholder="7,100"></td><td><input class="mat-in" type="number" placeholder="11,080"></td><td class="calc-cell">—</td></tr>
+        <tr class="floor-row"><td>⚑ Overhead floor (KES) — fixed</td><td>6,540</td><td>6,540</td><td>6,540</td><td>6,540</td><td>6,540</td><td>32,700</td></tr>
+        <tr class="total-row"><td>Net profit / (loss) (KES)</td><td><input class="mat-in" type="number" placeholder="2,180"></td><td><input class="mat-in" type="number" placeholder="1,340"></td><td><input class="mat-in" type="number" placeholder="3,460"></td><td><input class="mat-in" type="number" placeholder="560"></td><td><input class="mat-in" type="number" placeholder="4,540"></td><td class="calc-cell">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-head">Yield &amp; Wastage Audit</div>
+  <div style="overflow-x:auto; margin-bottom:24px">
+    <table class="matrix-table">
+      <thead>
+        <tr><th>Metric</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Week Total / Avg</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Chicken fry yield avg % (target ≥ 84%)</td><td><input class="mat-in" type="number" placeholder="84"></td><td><input class="mat-in" type="number" placeholder="82"></td><td><input class="mat-in" type="number" placeholder="85"></td><td><input class="mat-in" type="number" placeholder="79"></td><td><input class="mat-in" type="number" placeholder="86"></td><td class="calc-cell">—</td></tr>
+        <tr><td>Rice portions per kg raw (target ≥ 10)</td><td><input class="mat-in" type="number" placeholder="10"></td><td><input class="mat-in" type="number" placeholder="9.8"></td><td><input class="mat-in" type="number" placeholder="10.1"></td><td><input class="mat-in" type="number" placeholder="9.5"></td><td><input class="mat-in" type="number" placeholder="10.2"></td><td class="calc-cell">—</td></tr>
+        <tr><td>Coleslaw portions per head (target ≥ 8)</td><td><input class="mat-in" type="number" placeholder="8"></td><td><input class="mat-in" type="number" placeholder="7.5"></td><td><input class="mat-in" type="number" placeholder="8.2"></td><td><input class="mat-in" type="number" placeholder="8"></td><td><input class="mat-in" type="number" placeholder="8.4"></td><td class="calc-cell">—</td></tr>
+        <tr><td>Total wastage — all products (KES)</td><td><input class="mat-in" type="number" placeholder="0"></td><td><input class="mat-in" type="number" placeholder="320"></td><td><input class="mat-in" type="number" placeholder="0"></td><td><input class="mat-in" type="number" placeholder="740"></td><td><input class="mat-in" type="number" placeholder="0"></td><td class="calc-cell">—</td></tr>
+        <tr><td>WO-01 forms raised</td><td><input class="mat-in" type="number" placeholder="0"></td><td><input class="mat-in" type="number" placeholder="0"></td><td><input class="mat-in" type="number" placeholder="0"></td><td><input class="mat-in" type="number" placeholder="1"></td><td><input class="mat-in" type="number" placeholder="0"></td><td class="calc-cell">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-head">GM Weekly Review</div>
+  <div class="form-section">
+    <div class="form-body">
+      <div class="field-row fr-3">
+        <div class="field"><label>Week ending</label><input type="date"></div>
+        <div class="field"><label>Week classified as</label>
+          <select>
+            <option>— Select —</option>
+            <option>✅ Profitable week</option>
+            <option>⚠ Mixed — action required</option>
+            <option>🔴 Loss week — escalation required</option>
+          </select>
+        </div>
+        <div class="field"><label>Lowest-yield product this week</label>
+          <select>
+            <option>— Select —</option>
+            <option>Rice — portion yield low</option>
+            <option>Chicken — fry yield low</option>
+            <option>Coleslaw — trim loss high</option>
+            <option>Coke — variance found</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row fr-2" style="margin-top:12px">
+        <div class="field"><label>Corrective action assigned to</label>
+          <select>
+            <option>— Select role —</option>
+            <option>OM — production standard to be retrained</option>
+            <option>FM — procurement order to be adjusted</option>
+            <option>PC — portion-control check frequency to increase</option>
+            <option>GM — pricing review (escalation only)</option>
+          </select>
+        </div>
+        <div class="field"><label>Action deadline</label><input type="date"></div>
+      </div>
+      <div class="field-row fr-2" style="margin-top:12px">
+        <div class="field"><label>GM Signature — Weekly review</label><input type="text" placeholder="Signed: _______________"></div>
+        <div class="field"><label>FM Signature — Matrix submitted by</label><input type="text" placeholder="Signed: _______________"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 6 — APPROVAL DOCUMENTS
+══════════════════════════════════════ -->
+<div id="p-approval" class="page">
+<div class="wrap">
+
+  <div class="pg-label">Approval &amp; Authorization Documents</div>
+  <h1 class="pg-title">Three Forms — Every Significant Decision Leaves a Trail</h1>
+  <p class="pg-desc">
+    These forms exist because no significant financial commitment, wastage write-off, or price change should happen without a counter-signature. They are the paper backbone of the daily checklist system.
+  </p>
+
+  <!-- PO-01 -->
+  <div class="approval-doc">
+    <div class="doc-header">
+      <div>
+        <div class="doc-title">PO-01 · Daily Procurement Order</div>
+        <div class="doc-ref">Initiated: FM &nbsp;|&nbsp; Approved: GM &nbsp;|&nbsp; Executed: FM on receipt &nbsp;|&nbsp; Ref: PO-[YYYY]-[NNN]</div>
+      </div>
+      <div class="doc-seal">🛒</div>
+    </div>
+    <div class="doc-body">
+      <div class="field-row fr-4">
+        <div class="field"><label>Order Reference</label><input type="text" placeholder="PO-2025-001"></div>
+        <div class="field"><label>Order Date</label><input type="date"></div>
+        <div class="field"><label>Required Delivery Date</label><input type="date"></div>
+        <div class="field"><label>Supplier</label><input type="text" placeholder="Supplier name"></div>
+      </div>
+
+      <div class="section-head" style="margin-top:20px">Items Ordered</div>
+      <table class="uom-table">
+        <thead>
+          <tr>
+            <th>Raw Material</th>
+            <th>Unit</th>
+            <th>Stock on Hand</th>
+            <th>Par Level</th>
+            <th>Projected Need</th>
+            <th>Order Quantity</th>
+            <th>Est. Unit Cost (KES)</th>
+            <th>Est. Total (KES)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🍚 White rice</td>
+            <td>kg</td>
+            <td><input class="cl-input" type="number" placeholder="8" style="width:65px"></td>
+            <td>20</td>
+            <td><input class="cl-input" type="number" placeholder="14" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="15" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="85" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="1275" style="width:75px"></td>
+          </tr>
+          <tr>
+            <td>🍗 Chicken (raw)</td>
+            <td>kg</td>
+            <td><input class="cl-input" type="number" placeholder="5" style="width:65px"></td>
+            <td>22</td>
+            <td><input class="cl-input" type="number" placeholder="17" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="18" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="480" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="8640" style="width:75px"></td>
+          </tr>
+          <tr>
+            <td>🥗 Cabbage</td>
+            <td>heads</td>
+            <td><input class="cl-input" type="number" placeholder="2" style="width:65px"></td>
+            <td>6</td>
+            <td><input class="cl-input" type="number" placeholder="4" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="5" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="40" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="200" style="width:75px"></td>
+          </tr>
+          <tr>
+            <td>🥗 Carrots</td>
+            <td>kg</td>
+            <td><input class="cl-input" type="number" placeholder="0.5" style="width:65px"></td>
+            <td>1.5</td>
+            <td><input class="cl-input" type="number" placeholder="1" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="1.5" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="80" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="120" style="width:75px"></td>
+          </tr>
+          <tr>
+            <td>🥗 Mayonnaise</td>
+            <td>kg</td>
+            <td><input class="cl-input" type="number" placeholder="0.4" style="width:65px"></td>
+            <td>1.0</td>
+            <td><input class="cl-input" type="number" placeholder="0.6" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="1" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="350" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="350" style="width:75px"></td>
+          </tr>
+          <tr>
+            <td>🥤 Diet Coke</td>
+            <td>cases (24)</td>
+            <td><input class="cl-input" type="number" placeholder="0.5" style="width:65px"></td>
+            <td>2</td>
+            <td><input class="cl-input" type="number" placeholder="1.5" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="2" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="1850" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="3700" style="width:75px"></td>
+          </tr>
+          <tr>
+            <td>🛢 Frying oil</td>
+            <td>litres</td>
+            <td><input class="cl-input" type="number" placeholder="4" style="width:65px"></td>
+            <td>10</td>
+            <td><input class="cl-input" type="number" placeholder="6" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="8" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="200" style="width:65px"></td>
+            <td><input class="cl-input" type="number" placeholder="1600" style="width:75px"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-row fr-3" style="margin-top:16px">
+        <div class="field"><label>Estimated Total Order Value (KES)</label><input type="number" placeholder="15,885"></div>
+        <div class="field"><label>Within approved budget?</label>
+          <select><option>Yes — within daily budget</option><option>No — variance, GM to approve</option></select>
+        </div>
+        <div class="field"><label>FM Notes</label><input type="text" placeholder="Any short-supply risk noted here"></div>
+      </div>
+
+      <div class="sig-grid">
+        <div class="sig-box required">
+          <div class="sig-role">Finance Manager — Initiator</div>
+          <input class="sig-name-line" type="text" placeholder="Full name">
+          <div class="sig-date-label">Date &amp; Time Raised</div>
+          <input class="sig-date-input" type="datetime-local">
+        </div>
+        <div class="sig-box required">
+          <div class="sig-role">General Manager — Approval (required before order)</div>
+          <input class="sig-name-line" type="text" placeholder="Full name">
+          <div class="sig-date-label">Date &amp; Time Approved</div>
+          <input class="sig-date-input" type="datetime-local">
+        </div>
+        <div class="sig-box optional">
+          <div class="sig-role">FM — Delivery Received &amp; Verified</div>
+          <input class="sig-name-line" type="text" placeholder="Full name (on delivery)">
+          <div class="sig-date-label">Date &amp; Time of Delivery</div>
+          <input class="sig-date-input" type="datetime-local">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WO-01 -->
+  <div class="approval-doc">
+    <div class="doc-header">
+      <div>
+        <div class="doc-title">WO-01 · Wastage Write-Off Approval</div>
+        <div class="doc-ref">Required when: total wastage value exceeds KES 500 in any shift &nbsp;|&nbsp; Initiated: OM &nbsp;|&nbsp; Co-signed: FM &nbsp;|&nbsp; Approved: GM &nbsp;|&nbsp; Ref: WO-[YYYY]-[NNN]</div>
+      </div>
+      <div class="doc-seal">⚠</div>
+    </div>
+    <div class="doc-body">
+      <div class="field-row fr-4">
+        <div class="field"><label>Write-off Reference</label><input type="text" placeholder="WO-2025-001"></div>
+        <div class="field"><label>Date of Wastage</label><input type="date"></div>
+        <div class="field"><label>Time of Wastage Event</label><input type="time"></div>
+        <div class="field"><label>Total KES Value to Write Off</label><input type="number" placeholder="0"></div>
+      </div>
+
+      <div class="section-head" style="margin-top:16px">Items Written Off</div>
+      <table class="uom-table">
+        <thead>
+          <tr><th>Product</th><th>Quantity / Weight</th><th>Unit Cost (KES)</th><th>Write-off Value (KES)</th><th>Cause of Wastage</th><th>Preventable?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><select style="font-size:11px; padding:4px; border:1px solid var(--paper-3); border-radius:3px; background:white; width:100%"><option>Rice</option><option>Chicken</option><option>Coleslaw</option><option>Diet Coke</option><option>Oil</option></select></td>
+            <td><input class="cl-input" type="text" placeholder="0g / 0 portions" style="width:110px"></td>
+            <td><input class="cl-input" type="number" placeholder="0" style="width:70px"></td>
+            <td><input class="cl-input" type="number" placeholder="0" style="width:80px"></td>
+            <td><select style="font-size:11px; padding:4px; border:1px solid var(--paper-3); border-radius:3px; background:white; width:100%"><option>Over-prep</option><option>Spoilage (time)</option><option>Overcooking</option><option>Dropped/accident</option><option>Wrong portion</option></select></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+          <tr>
+            <td><select style="font-size:11px; padding:4px; border:1px solid var(--paper-3); border-radius:3px; background:white; width:100%"><option>Rice</option><option>Chicken</option><option>Coleslaw</option><option>Diet Coke</option><option>Oil</option></select></td>
+            <td><input class="cl-input" type="text" placeholder="0g / 0 portions" style="width:110px"></td>
+            <td><input class="cl-input" type="number" placeholder="0" style="width:70px"></td>
+            <td><input class="cl-input" type="number" placeholder="0" style="width:80px"></td>
+            <td><select style="font-size:11px; padding:4px; border:1px solid var(--paper-3); border-radius:3px; background:white; width:100%"><option>Over-prep</option><option>Spoilage (time)</option><option>Overcooking</option><option>Dropped/accident</option><option>Wrong portion</option></select></td>
+            <td><input class="cl-check" type="checkbox"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-row fr-2" style="margin-top:14px">
+        <div class="field"><label>OM Description — what happened</label><textarea placeholder="Describe the event that led to wastage. Include batch number if applicable."></textarea></div>
+        <div class="field"><label>Corrective action to prevent recurrence</label><textarea placeholder="What will be changed in procedure, timing, or volume to prevent this happening again?"></textarea></div>
+      </div>
+
+      <div class="sig-grid">
+        <div class="sig-box required">
+          <div class="sig-role">Operations Manager — Initiator</div>
+          <input class="sig-name-line" type="text" placeholder="Full name">
+          <div class="sig-date-label">Date &amp; Time</div>
+          <input class="sig-date-input" type="datetime-local">
+        </div>
+        <div class="sig-box required">
+          <div class="sig-role">Finance Manager — Value Verified</div>
+          <input class="sig-name-line" type="text" placeholder="Full name">
+          <div class="sig-date-label">Date &amp; Time</div>
+          <input class="sig-date-input" type="datetime-local">
+        </div>
+        <div class="sig-box required">
+          <div class="sig-role">General Manager — Write-off Approved</div>
+          <input class="sig-name-line" type="text" placeholder="Full name">
+          <div class="sig-date-label">Date &amp; Time</div>
+          <input class="sig-date-input" type="datetime-local">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PC-01 -->
+  <div class="approval-doc">
+    <div class="doc-header">
+      <div>
+        <div class="doc-title">PC-01 · Staff Engagement &amp; Statutory Compliance Record</div>
+        <div class="doc-ref">Maintained: PC weekly &nbsp;|&nbsp; Reviewed: GM monthly &nbsp;|&nbsp; Filed: HR register &nbsp;|&nbsp; Ref: PC-[YYYY]-[NNN]</div>
+      </div>
+      <div class="doc-seal">👥</div>
+    </div>
+    <div class="doc-body">
+
+      <div class="section-head">Staff Register &amp; Statutory Status</div>
+      <table class="uom-table">
+        <thead>
+          <tr>
+            <th>Name</th><th>Role</th><th>Contract Type</th><th>Monthly Salary (KES)</th>
+            <th>NHIF</th><th>NSSF</th><th>Food Handler Cert</th><th>Cert Expiry</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input class="cl-input" type="text" placeholder="Full name" style="width:120px; text-align:left"></td>
+            <td><input class="cl-input" type="text" placeholder="e.g. Chef" style="width:90px; text-align:left"></td>
+            <td><select style="font-size:11px; padding:3px; border:1px solid var(--paper-3); border-radius:3px; background:white"><option>Permanent</option><option>Casual</option><option>Part-time</option></select></td>
+            <td><input class="cl-input" type="number" placeholder="30000" style="width:80px"></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-input" type="date" style="width:115px"></td>
+            <td><select style="font-size:11px; padding:3px; border:1px solid var(--paper-3); border-radius:3px; background:white"><option>✅ Active</option><option>⚠ Expiring soon</option><option>🔴 Lapsed</option></select></td>
+          </tr>
+          <tr>
+            <td><input class="cl-input" type="text" placeholder="Full name" style="width:120px; text-align:left"></td>
+            <td><input class="cl-input" type="text" placeholder="e.g. Prep Cook" style="width:90px; text-align:left"></td>
+            <td><select style="font-size:11px; padding:3px; border:1px solid var(--paper-3); border-radius:3px; background:white"><option>Permanent</option><option>Casual</option><option>Part-time</option></select></td>
+            <td><input class="cl-input" type="number" placeholder="26000" style="width:80px"></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-input" type="date" style="width:115px"></td>
+            <td><select style="font-size:11px; padding:3px; border:1px solid var(--paper-3); border-radius:3px; background:white"><option>✅ Active</option><option>⚠ Expiring soon</option><option>🔴 Lapsed</option></select></td>
+          </tr>
+          <tr>
+            <td><input class="cl-input" type="text" placeholder="Full name" style="width:120px; text-align:left"></td>
+            <td><input class="cl-input" type="text" placeholder="e.g. Counter" style="width:90px; text-align:left"></td>
+            <td><select style="font-size:11px; padding:3px; border:1px solid var(--paper-3); border-radius:3px; background:white"><option>Permanent</option><option>Casual</option><option>Part-time</option></select></td>
+            <td><input class="cl-input" type="number" placeholder="26000" style="width:80px"></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-input" type="date" style="width:115px"></td>
+            <td><select style="font-size:11px; padding:3px; border:1px solid var(--paper-3); border-radius:3px; background:white"><option>✅ Active</option><option>⚠ Expiring soon</option><option>🔴 Lapsed</option></select></td>
+          </tr>
+          <tr>
+            <td><input class="cl-input" type="text" placeholder="Full name" style="width:120px; text-align:left"></td>
+            <td><input class="cl-input" type="text" placeholder="e.g. Cashier" style="width:90px; text-align:left"></td>
+            <td><select style="font-size:11px; padding:3px; border:1px solid var(--paper-3); border-radius:3px; background:white"><option>Permanent</option><option>Casual</option><option>Part-time</option></select></td>
+            <td><input class="cl-input" type="number" placeholder="38000" style="width:80px"></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-check" type="checkbox" checked></td>
+            <td><input class="cl-input" type="date" style="width:115px"></td>
+            <td><select style="font-size:11px; padding:3px; border:1px solid var(--paper-3); border-radius:3px; background:white"><option>✅ Active</option><option>⚠ Expiring soon</option><option>🔴 Lapsed</option></select></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-row fr-2" style="margin-top:16px">
+        <div class="field"><label>Any conduct / performance issue this week?</label>
+          <select><option>None</option><option>Yes — case log attached</option></select>
+        </div>
+        <div class="field"><label>Portion-control observations this week (# conducted)</label><input type="number" placeholder="4" min="0"></div>
+      </div>
+
+      <div class="sig-grid">
+        <div class="sig-box required">
+          <div class="sig-role">People &amp; Culture Manager — Submitted</div>
+          <input class="sig-name-line" type="text" placeholder="Full name">
+          <div class="sig-date-label">Week ending date</div>
+          <input class="sig-date-input" type="date">
+        </div>
+        <div class="sig-box required">
+          <div class="sig-role">General Manager — Monthly Review</div>
+          <input class="sig-name-line" type="text" placeholder="Full name">
+          <div class="sig-date-label">Date reviewed</div>
+          <input class="sig-date-input" type="date">
+        </div>
+        <div class="sig-box optional">
+          <div class="sig-role">Finance Manager — Payroll Aligned</div>
+          <input class="sig-name-line" type="text" placeholder="Full name">
+          <div class="sig-date-label">Payroll period</div>
+          <input class="sig-date-input" type="month">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<script>
+// ── PAGE NAVIGATION ──
+function go(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── LIVE PROFIT SIGNAL (Section D) ──
+const products = [
+  { sold: 'rs',  rev: 'rrev',  cost: 'rcost',  gm: 'rgm',  price: 120, rawcost: 38  },
+  { sold: 'cs',  rev: 'crev',  cost: 'ccost',  gm: 'cgm',  price: 320, rawcost: 148 },
+  { sold: 'cos', rev: 'corev', cost: 'cocost', gm: 'cogm', price: 80,  rawcost: 22  },
+  { sold: 'dcs', rev: 'dcrev', cost: 'dccost', gm: 'dcgm', price: 100, rawcost: 52  },
+];
+
+const FLOOR = 6540;
+
+function fmt(n) { return n.toLocaleString('en-KE', {minimumFractionDigits: 0}); }
+
+function recalc() {
+  let totRev = 0, totCost = 0, totGM = 0;
+  products.forEach(p => {
+    const s = parseFloat(document.getElementById(p.sold).value) || 0;
+    const rev  = s * p.price;
+    const cost = s * p.rawcost;
+    const gm   = rev - cost;
+    document.getElementById(p.rev).textContent   = fmt(rev);
+    document.getElementById(p.cost).textContent  = fmt(cost);
+    document.getElementById(p.gm).textContent    = fmt(gm);
+    totRev  += rev;
+    totCost += cost;
+    totGM   += gm;
+  });
+  document.getElementById('totrev').innerHTML  = '<strong>' + fmt(totRev)  + '</strong>';
+  document.getElementById('totcost').innerHTML = '<strong>' + fmt(totCost) + '</strong>';
+  document.getElementById('totgm').innerHTML   = '<strong>' + fmt(totGM)   + '</strong>';
+  document.getElementById('expected').value    = totRev;
+
+  // Cash variance
+  const til = parseFloat(document.getElementById('tillin').value) || 0;
+  document.getElementById('cashvar').value = (til - totRev).toFixed(0);
+
+  // Profit signal
+  const net = totGM - FLOOR;
+  const box = document.getElementById('profit-signal-box');
+  const val = document.getElementById('ps-margin');
+  const cls = document.getElementById('ps-classify');
+  val.textContent = 'KES ' + fmt(Math.abs(net));
+  box.style.borderColor = net > 0 ? 'var(--ok)' : net === 0 ? 'var(--warn)' : 'var(--danger)';
+  if (net > 0) {
+    val.style.color = 'var(--ok)';
+    cls.textContent = '✅ Profit — overhead floor cleared by KES ' + fmt(net);
+    cls.className = 'ps-signal green';
+  } else if (net === 0) {
+    val.style.color = 'var(--warn)';
+    cls.textContent = '⚠ Exactly break-even — no profit, no loss';
+    cls.className = 'ps-signal warn';
+  } else {
+    val.style.color = 'var(--danger)';
+    cls.textContent = '🔴 Loss — KES ' + fmt(Math.abs(net)) + ' short of floor';
+    cls.className = 'ps-signal red';
+  }
+}
+
+// Attach listeners
+products.forEach(p => {
+  document.getElementById(p.sold).addEventListener('input', recalc);
+});
+document.getElementById('tillin').addEventListener('input', recalc);
+
+// ── DOWNLOAD ──
+function dlSelf() {
+  const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const blob = new Blob([html], {type: 'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '4P_Restaurant_OS.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+
+</body>
+</html>

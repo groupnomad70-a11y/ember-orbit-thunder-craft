@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-ink: #1c1916;
+  --color-ink-2: #2c2824;
+  --color-ink-3: #4a453e;
+  --color-stone: #6f6a62;
+  --color-dust: #b4aea3;
+  --color-paper: #f4f0e8;
+  --color-paper-2: #ebe6dc;
+  --color-paper-3: #ddd6c8;
+  --color-cream: #faf7f1;
+  --color-clay: #b85c1a;
+  --color-clay-fg: #fff8f0;
+  --color-ok: #3d6b45;
+  --color-ok-soft: #e4eee3;
+  --color-danger: #a33b32;
+  --color-danger-soft: #f4e4e1;
+  --color-warn: #9a6b12;
+  --color-warn-soft: #f3ead2;
+  --color-house-gm: #b85c1a;
+  --color-house-fm: #1f5d82;
+  --color-house-om: #3d6b45;
+  --color-house-pc: #6b2a4a;
+  --color-unit-rice: #9a7b32;
+  --color-unit-chicken: #b85c1a;
+  --color-unit-coleslaw: #5a7a32;
+  --color-unit-coke: #1f5d82;
+
+  --color-background: #f4f0e8;
+  --color-foreground: #1c1916;
+  --color-card: #faf7f1;
+  --color-border: #ddd6c8;
+  --color-muted: #6f6a62;
+  --color-primary: #b85c1a;
+  --color-primary-foreground: #fff8f0;
+  --color-ring: #b85c1a;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  h1, h2, h3 {
+    text-wrap: balance;
+    font-family: var(--font-display);
+  }
+  p {
+    text-wrap: pretty;
+  }
+  input, select, textarea {
+    font-family: inherit;
+  }
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
+  main { padding: 0 !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
